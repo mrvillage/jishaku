@@ -128,7 +128,7 @@ class InvocationFeature(Feature):
 
                 await alt_ctx.command.reinvoke(alt_ctx)
 
-    @Feature.Command(parent="jsk", name="debug", aliases=["dbg"])
+    @Feature.Command(parent="jsk", name="debug", aliases=["dbg", "debug!", "dbg!"])
     async def jsk_debug(self, ctx: commands.Context, *, command_string: str):
         """
         Run a command timing execution and catching exceptions.
@@ -143,7 +143,10 @@ class InvocationFeature(Feature):
 
         async with ReplResponseReactor(ctx.message):
             with self.submit(ctx):
-                await alt_ctx.command.invoke(alt_ctx)
+                if ctx.invoked_with.endswith("!"):
+                    await alt_ctx.command.reinvoke(alt_ctx)
+                else:
+                    await alt_ctx.command.invoke(alt_ctx)
 
         end = time.perf_counter()
         return await ctx.send(f"Command `{alt_ctx.command.qualified_name}` finished in {end - start:.3f}s.")
